@@ -3,6 +3,7 @@
 # PYTHON_ARGCOMPLETE_OK
 import os
 import logging
+from unittest.mock import patch
 
 
 # Directorysize
@@ -34,18 +35,46 @@ class Directory:
 logging.basicConfig(level=logging.INFO)
 
 
+def fake_info(fmt, *args, **kwargs):
+    print(fmt % args)
+
+
 class LoggedAgeAccess:
     def __get__(self, instance, owner=None):
         value = instance._age
-        logging.info("Accessing %r gives %r", "age", value)
+        with patch.object(logging, "info", side_effect=fake_info):
+            logging.info("Accessing %r gives %r", "age", value)
         return value
 
     def __set__(self, instance, value):
-        logging.info("Updating %r to %r", "age", value)
+        with patch.object(logging, "info", side_effect=fake_info):
+            logging.info("Updating %r to %r", "age", value)
         instance._age = value
 
 
 class Person:
+    """
+    >>> mary = Person("Mary M", 30)
+    Updating 'age' to 30
+    >>> dave = Person("David D", 40)
+    Updating 'age' to 40
+    >>> vars(mary)
+    {'name': 'Mary M', '_age': 30}
+    >>> vars(dave)
+    {'name': 'David D', '_age': 40}
+    >>> mary.age
+    Accessing 'age' gives 30
+    30
+    >>> mary.birthday()
+    Accessing 'age' gives 30
+    Updating 'age' to 31
+    >>> dave.name
+    David D
+    >>> dave.age
+    Accessing 'age' gives 40
+    40
+    """
+
     age = LoggedAgeAccess()
 
     def __init__(self, name, age):
