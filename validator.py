@@ -3,6 +3,7 @@
 # PYTHON_ARGCOMPLETE_OK
 from typing import Never
 from abc import ABC, abstractmethod
+import unittest
 
 
 class Validator(ABC):
@@ -74,7 +75,18 @@ class Component:
         self.quantity = quantity
 
 
-if __name__ == "__main__":
-    import doctest
+class TestValidator(unittest.TestCase):
 
-    doctest.testmod()
+    def test_widget(self):
+        self.assertEqual(
+            (lambda c=Component("WIDGET", "metal", 12): (c.name, c.kind, c.quantity))(),
+            ("WIDGET", "metal", 12),
+        )
+
+    def test_widget_nok(self):
+        with self.assertRaises(ValueError):
+            Component("Widget", "metal", 12)
+
+
+if __name__ == "__main__":
+    unittest.main()
