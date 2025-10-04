@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 class Validator(ABC):
     def __set_name__(self, owner, name):
-        self.priv_name = name
+        self.priv_name = "_" + name
 
     def __get__(self, instance, owner=None):
         return getattr(instance, self.priv_name)
@@ -60,6 +60,8 @@ class String(Validator):
 class Component:
     """
     >>> c = Component("WIDGET", "metal", 12)
+    >>> c.name, c.kind, c.quantity
+    ('WIDGET', 'metal', 12)
     """
 
     name = String(2, 8, str.isupper)
