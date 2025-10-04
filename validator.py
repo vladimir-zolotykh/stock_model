@@ -1,0 +1,78 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# PYTHON_ARGCOMPLETE_OK
+from typing import Never
+from abc import ABC, abstractmethod
+
+
+class Validator(ABC):
+    def __set_name__(self, owner, name):
+        self.priv_name = name
+
+    def __get__(self, instance, owner=None):
+        return getattr(instance, self.priv_name)
+
+    def __set__(self, instance, value):
+        self.validate(value)
+        setattr(instance, self.priv_name, value)
+
+    @abstractmethod
+    def validate(self, value) -> Never:
+        pass
+
+
+class OneOf(Validator):
+    def __init__(self, options):
+        self.options = options
+
+    def validate(self, value):
+        if value not in self.options:
+            raise ValueError(f"{value!r} must be one of {self.options!r}")
+
+
+class Number(Validator):
+    def __init__(self, minval=0, maxval=None):
+        self.minval = minval
+        self.maxval = maxval
+
+    def validate(self, value):
+        if isinstance(self.minval, (int, float)) and value < self.minval:
+            ValueError(f"{value!r} must not be less that {self.minval!r}")
+        if isinstance(self.maxval, (int, float)) and value > self.maxval:
+            ValueError(f"{value!r} must not exceed {self.maxval!r}")
+
+
+class String(Validator):
+    def __init__(self, minsize, maxsize, predicate):
+        self.minsize = minsize
+        self.maxsize = maxsize
+        self.predicate = predicate
+
+    def validate(self, value):
+        if isinstance(self.minsize, int) and len(value) < self.minsize:
+            raise ValueError(f"{value!r} must not be shorter that {self.minsize!r}")
+        if isinstance(self.maxsize, int) and len(value) > self.maxsize:
+            raise ValueError(f"{value!r} must not be longer than {self.maxsize!r}")
+        if callable(self.predicate) and not self.predicate(value):
+            raise ValueError(f"{self.predicate!r} must return True for {value!r}")
+
+
+class Component:
+    """
+    >>> c = Component("WIDGET", "metal", 12)
+    """
+
+    name = String(2, 8, str.isupper)
+    kind = OneOf(["metal", "wood", "plastic"])
+    quantity = Number(0, 100)
+
+    def __init__(self, name, kind, quantity):
+        self.name = name
+        self.kind = kind
+        self.quantity = quantity
+
+
+if __name__ == "__main__":
+    import doctest
+
+    doctest.testmod()
