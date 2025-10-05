@@ -37,6 +37,8 @@ class Number(Validator):
         self.maxval = maxval
 
     def validate(self, value):
+        if not isinstance(value, (int, float)):
+            raise TypeError(f"{value!r} must be int or float")
         if isinstance(self.minval, (int, float)) and value < self.minval:
             raise ValueError(f"{value!r} must not be less that {self.minval!r}")
         if isinstance(self.maxval, (int, float)) and value > self.maxval:
@@ -96,8 +98,14 @@ class TestValidator(unittest.TestCase):
             Component("WIDGET", "metle", 5)
 
     def test_widget_nok3(self):
+        # ValueError: -5 must not be less that 0
         with self.assertRaises(ValueError):
             Component("WIDGET", "metal", -5)
+
+    def test_widget_nok4(self):
+        # TypeError: 'V' must be int or float
+        with self.assertRaises(TypeError):
+            Component("WIDGET", "metal", "V")
 
 
 if __name__ == "__main__":
