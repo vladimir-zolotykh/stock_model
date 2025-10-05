@@ -38,9 +38,9 @@ class Number(Validator):
 
     def validate(self, value):
         if isinstance(self.minval, (int, float)) and value < self.minval:
-            ValueError(f"{value!r} must not be less that {self.minval!r}")
+            raise ValueError(f"{value!r} must not be less that {self.minval!r}")
         if isinstance(self.maxval, (int, float)) and value > self.maxval:
-            ValueError(f"{value!r} must not exceed {self.maxval!r}")
+            raise ValueError(f"{value!r} must not exceed {self.maxval!r}")
 
 
 class String(Validator):
