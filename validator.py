@@ -74,13 +74,15 @@ class Component:
         self.kind = kind
         self.quantity = quantity
 
+    def as_tuple(self) -> tuple[str, str, str]:
+        return tuple((self.name, self.kind, self.quantity))
+
 
 class TestValidator(unittest.TestCase):
 
     def test_widget(self):
         self.assertEqual(
-            (lambda c=Component("WIDGET", "metal", 12): (c.name, c.kind, c.quantity))(),
-            ("WIDGET", "metal", 12),
+            Component("WIDGET", "metal", 12).as_tuple(), ("WIDGET", "metal", 12)
         )
 
     def test_widget_nok(self):
