@@ -87,7 +87,17 @@ class TestValidator(unittest.TestCase):
 
     def test_widget_nok(self):
         with self.assertRaises(ValueError):
+            # ValueError: <method 'isupper' of 'str' objects> must return True for 'Widget'
             Component("Widget", "metal", 12)
+
+    def test_widget_nok2(self):
+        with self.assertRaises(ValueError):
+            # ValueError: 'metle' must be one of ['metal', 'wood', 'plastic']
+            Component("WIDGET", "metle", 5)
+
+    def test_widget_nok3(self):
+        with self.assertRaises(ValueError):
+            Component("WIDGET", "metal", -5)
 
 
 if __name__ == "__main__":
