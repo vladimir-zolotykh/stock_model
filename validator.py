@@ -22,13 +22,21 @@ class Validator(ABC):
         pass
 
 
+class OnOfError(ValueError):
+    pass
+
+
 class OneOf(Validator):
     def __init__(self, options):
         self.options = options
 
     def validate(self, value):
         if value not in self.options:
-            raise ValueError(f"{value!r} must be one of {self.options!r}")
+            raise OnOfError(f"{value!r} must be one of {self.options!r}")
+
+
+class NumberError(ValueError):
+    pass
 
 
 class Number(Validator):
@@ -38,11 +46,15 @@ class Number(Validator):
 
     def validate(self, value):
         if not isinstance(value, (int, float)):
-            raise TypeError(f"{value!r} must be int or float")
+            raise NumberError(f"{value!r} must be int or float")
         if isinstance(self.minval, (int, float)) and value < self.minval:
-            raise ValueError(f"{value!r} must not be less that {self.minval!r}")
+            raise NumberError(f"{value!r} must not be less that {self.minval!r}")
         if isinstance(self.maxval, (int, float)) and value > self.maxval:
-            raise ValueError(f"{value!r} must not exceed {self.maxval!r}")
+            raise NumberError(f"{value!r} must not exceed {self.maxval!r}")
+
+
+class StringError(ValueError):
+    pass
 
 
 class String(Validator):
@@ -53,11 +65,11 @@ class String(Validator):
 
     def validate(self, value):
         if isinstance(self.minsize, int) and len(value) < self.minsize:
-            raise ValueError(f"{value!r} must not be shorter that {self.minsize!r}")
+            raise StringError(f"{value!r} must not be shorter that {self.minsize!r}")
         if isinstance(self.maxsize, int) and len(value) > self.maxsize:
-            raise ValueError(f"{value!r} must not be longer than {self.maxsize!r}")
+            raise StringError(f"{value!r} must not be longer than {self.maxsize!r}")
         if callable(self.predicate) and not self.predicate(value):
-            raise ValueError(f"{self.predicate!r} must return True for {value!r}")
+            raise StringError(f"{self.predicate!r} must return True for {value!r}")
 
 
 class Component:
@@ -82,29 +94,29 @@ class Component:
 
 class TestValidator(unittest.TestCase):
 
-    def test_widget(self):
+    def test_component(self):
         self.assertEqual(
             Component("WIDGET", "metal", 12).as_tuple(), ("WIDGET", "metal", 12)
         )
 
-    def test_widget_nok(self):
-        with self.assertRaises(ValueError):
+    def test_string(self):
+        with self.assertRaises(StringError):
             # ValueError: <method 'isupper' of 'str' objects> must return True for 'Widget'
             Component("Widget", "metal", 12)
 
-    def test_widget_nok2(self):
-        with self.assertRaises(ValueError):
+    def test_one_of(self):
+        with self.assertRaises(OnOfError):
             # ValueError: 'metle' must be one of ['metal', 'wood', 'plastic']
             Component("WIDGET", "metle", 5)
 
-    def test_widget_nok3(self):
+    def test_number1(self):
         # ValueError: -5 must not be less that 0
-        with self.assertRaises(ValueError):
+        with self.assertRaises(NumberError):
             Component("WIDGET", "metal", -5)
 
-    def test_widget_nok4(self):
+    def test_number2(self):
         # TypeError: 'V' must be int or float
-        with self.assertRaises(TypeError):
+        with self.assertRaises(NumberError):
             Component("WIDGET", "metal", "V")
 
 
