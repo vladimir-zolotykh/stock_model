@@ -5,7 +5,7 @@ import unittest
 
 
 class Descriptor:
-    def __set_name(self, owner, name):
+    def __set_name__(self, owner, name):
         self.name = "_nad_" + name  # not a descriptor
 
     def __get__(self, instance, owner):
@@ -52,15 +52,22 @@ class Float(Typed):
     expected_type = float
 
 
+class Unsigned(Descriptor):
+    def __set__(self, instance, value):
+        if value < 0:
+            raise ValueError(f"{value!r} must not be negative")
+        super().__set__(instance, value)
+
+
 class SizedString(String, Sized):
     pass
 
 
-class UnsignedInteger(Integer, Sized):
+class UnsignedInteger(Integer, Unsigned):
     pass
 
 
-class UnsignedFloat(Float, Sized):
+class UnsignedFloat(Float, Unsigned):
     pass
 
 
