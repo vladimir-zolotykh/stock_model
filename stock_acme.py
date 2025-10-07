@@ -104,6 +104,10 @@ class TestMaxsize(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.s.price = "a lot"
 
+    def test_name(self):
+        with self.assertRaises(ValueError):
+            self.s.name = "ABRACADABRA"
+
 
 if __name__ == "__main__":
     unittest.main()
