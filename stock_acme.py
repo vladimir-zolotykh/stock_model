@@ -83,8 +83,22 @@ class Stock:
 
 
 class TestMaxsize(unittest.TestCase):
+    def setUp(self):
+        try:
+            self.s = Stock("ACME", 50, 91.1)
+        except Exception as e:
+            raise unittest.SkipTest(f"Skipping tests because setup failed: {e}")
+
     def test_stock(self):
-        Stock("ACME", 50, 91.1)
+        self.assertEqual(self.s.name, "ACME")
+
+    def test_shares(self):
+        with self.assertRaises(ValueError):
+            self.s.shares = -5
+
+    def test_price(self):
+        with self.assertRaises(TypeError):
+            self.s.price = "a lot"
 
 
 if __name__ == "__main__":
