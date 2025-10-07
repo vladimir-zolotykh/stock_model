@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 # PYTHON_ARGCOMPLETE_OK
+from dataclasses import dataclass
 import unittest
 
 
@@ -76,6 +77,9 @@ class Stock:
     shares = UnsignedInteger()
     price = UnsignedFloat()
 
+    def astuple(self) -> tuple[str, int, float]:
+        return self.name, self.shares, self.price
+
     def __init__(self, name, shares, price):
         self.name = name
         self.shares = shares
@@ -90,7 +94,7 @@ class TestMaxsize(unittest.TestCase):
             raise unittest.SkipTest(f"Skipping tests because setup failed: {e}")
 
     def test_stock(self):
-        self.assertEqual(self.s.name, "ACME")
+        self.assertEqual(self.s.astuple(), ("ACME", 50, 91.1))
 
     def test_shares(self):
         with self.assertRaises(ValueError):
