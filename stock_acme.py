@@ -6,7 +6,7 @@ import unittest
 
 class Descriptor:
     def __set_name__(self, owner, name):
-        self.name = "_nad_" + name  # not a descriptor
+        self.name = "_" + name
 
     def __get__(self, instance, owner):
         if instance is None:
@@ -78,7 +78,7 @@ class Stock:
 
     def __init__(self, name, shares, price):
         self.name = name
-        self.share = shares
+        self.shares = shares
         self.price = price
 
 
